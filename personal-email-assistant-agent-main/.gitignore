@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+env.bak/
+
+# Environment variables
+.env
+.env.*
+
+# Credentials and tokens
+credentials.json
+token.json
+*.key
+*.pem
+*.crt
+
+# IDE/editor files
+.vscode/
+.idea/
+*.suo
+*.user
+*.userprefs
+*.pydevproject
+
+# macOS
+.DS_Store
+
+# Log files
+*.log
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Docs
+*.docx
+*.doc
+
+# OS generated files
+Thumbs.db
+desktop.ini
+
+# Python bytecode
+*.pyo
+*.pyd
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Local files
+.local/
+
+# Misc
+*.sqlite3
+*.db
+.envrc
+.env
+credentials.json
+token.json
+
+langgraph.json
+
+test_gmail.py
