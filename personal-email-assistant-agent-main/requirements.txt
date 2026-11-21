@@ -1,4 +1,3 @@
-
 langchain
 langchain-groq
 langgraph
@@ -8,3 +7,6 @@ python-dotenv
 google-api-python-client
 google-auth-oauthlib
 google-auth-httplib2
+Flask
+Flask-CORS
+langsmith
