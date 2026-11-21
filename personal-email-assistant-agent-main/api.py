@@ -337,6 +337,68 @@ def process_emails_safely():
     }
 
 
+@app.get("/api/health")
+def health():
+    try:
+        conn = get_connection()
+        conn.close()
+        return jsonify({"status": "ok", "database": "connected"})
+    except Exception:
+        app.logger.exception("Health check failed")
+        return jsonify({"status": "error", "database": "unavailable"}), 503
+
+
+@app.put("/api/drafts/<gmail_id>")
+def update_draft(gmail_id):
+    data = request.get_json(silent=True) or {}
+    draft = data.get("draft")
+    if not isinstance(draft, str) or not draft.strip():
+        return jsonify({"error": "Draft cannot be empty"}), 400
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "UPDATE emails SET draft = %s WHERE gmail_id = %s AND status = 'drafted'",
+            (draft.strip(), gmail_id),
+        )
+        if cursor.rowcount == 0:
+            conn.rollback()
+            return jsonify({"error": "Draft not found or no longer editable"}), 404
+        conn.commit()
+        return jsonify({"message": "Draft saved", "gmail_id": gmail_id})
+    except Exception:
+        conn.rollback()
+        app.logger.exception("Draft update failed")
+        return jsonify({"error": "Could not save draft"}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.post("/api/drafts/<gmail_id>/reject")
+def reject_draft(gmail_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "UPDATE emails SET status = 'rejected' WHERE gmail_id = %s AND status = 'drafted'",
+            (gmail_id,),
+        )
+        if cursor.rowcount == 0:
+            conn.rollback()
+            return jsonify({"error": "Draft not found or already processed"}), 404
+        conn.commit()
+        return jsonify({"message": "Draft rejected", "gmail_id": gmail_id, "status": "rejected"})
+    except Exception:
+        conn.rollback()
+        app.logger.exception("Draft rejection failed")
+        return jsonify({"error": "Could not reject draft"}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
 @app.post("/api/process")
 def process_emails():
     try:
