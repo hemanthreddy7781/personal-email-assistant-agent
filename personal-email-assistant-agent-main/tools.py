@@ -258,8 +258,6 @@ def categorize_email(
 @tool
 def draft_reply(
     gmail_id: str,
-    to: str,
-    subject: str,
     draft: str,
 ):
     """
@@ -273,8 +271,9 @@ def draft_reply(
     # Add the requested signature if it is not already present.
     draft = draft.strip()
 
-    if not draft.endswith("Abdi"):
-        draft += "\n\nAbdi"
+    signature = "Best regards,\\nAbdi"
+    if not draft.endswith(signature):
+        draft = draft.rstrip() + "\\n\\n" + signature
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -301,7 +300,6 @@ def draft_reply(
 
         return (
             f"Reply draft saved for email {gmail_id}. "
-            f"Recipient: {to}. Subject: {subject}. "
             "The email has NOT been sent."
         )
 
