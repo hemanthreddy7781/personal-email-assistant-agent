@@ -141,7 +141,7 @@ def process_emails_safely():
     read_result = read_emails.invoke({})
 
     if isinstance(read_result, str) and read_result.startswith(
-        "Error"
+        "Failed to read emails:"
     ):
         raise RuntimeError(read_result)
 
@@ -419,7 +419,7 @@ def get_drafts():
 
     try:
         cursor.execute("""
-            SELECT gmail_id, sender, subject, body, draft, status
+            SELECT gmail_id, sender, subject, body, draft, status, created_at
             FROM emails
             WHERE draft IS NOT NULL
               AND TRIM(draft) <> ''
