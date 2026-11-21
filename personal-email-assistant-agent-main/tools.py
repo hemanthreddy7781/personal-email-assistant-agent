@@ -271,9 +271,9 @@ def draft_reply(
     # Add the requested signature if it is not already present.
     draft = draft.strip()
 
-    signature = "Best regards,\\nAbdi"
+    signature = "Best regards,\nAbdi"
     if not draft.endswith(signature):
-        draft = draft.rstrip() + "\\n\\n" + signature
+        draft = draft.rstrip() + "\n\n" + signature
 
     conn = get_connection()
     cursor = conn.cursor()
