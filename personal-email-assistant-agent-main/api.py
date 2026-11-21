@@ -451,6 +451,12 @@ def approve_and_send(gmail_id):
             "error": "Explicit approval is required"
         }), 400
 
+    edited_draft = data.get("draft")
+    if edited_draft is not None and (
+        not isinstance(edited_draft, str) or not edited_draft.strip()
+    ):
+        return jsonify({"error": "Draft cannot be empty"}), 400
+
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -477,6 +483,27 @@ def approve_and_send(gmail_id):
         return jsonify({"error": "Draft not found"}), 404
 
     sender, saved_draft, status = row
+
+    if edited_draft is not None:
+        conn = get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute(
+                "UPDATE emails SET draft = %s WHERE gmail_id = %s AND status = 'drafted'",
+                (edited_draft.strip(), gmail_id),
+            )
+            if cursor.rowcount == 0:
+                conn.rollback()
+                return jsonify({"error": "Draft could not be updated"}), 409
+            conn.commit()
+            saved_draft = edited_draft.strip()
+        except Exception:
+            conn.rollback()
+            app.logger.exception("Approved draft edit could not be saved")
+            return jsonify({"error": "Could not save approved draft"}), 500
+        finally:
+            cursor.close()
+            conn.close()
 
     if status == "sent":
         return jsonify({
